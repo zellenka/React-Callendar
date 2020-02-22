@@ -216,7 +216,7 @@ const Modal = ({ toggle, change, save }) => {
           />
           <textarea rows="5" cols="20" name="eventDescription" onChange={change}></textarea>
           <button onClick={toggle}>close</button>
-          <button onClick={save}>Add</button>
+          <button onClick={save}>Update</button>
       </form>
     </div>
     )
