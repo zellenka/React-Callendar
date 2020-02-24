@@ -18,24 +18,24 @@ let calendar;
 // var d = today.getDate();
 
 const events = [
-  {
-    id: 1,
-    title: "Call with Dave",
-    start: new Date(),
-    allDay: true,
-    className: "bg-red",
-    description:
-      "Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus."
-  },
-  {
-    id: 2,
-    title: "Call with Dave",
-    start: new Date(),
-    allDay: true,
-    className: "bg-red",
-    description:
-      "Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus."
-  },
+  // {
+  //   id: 1,
+  //   title: "Call with Dave",
+  //   start: new Date(),
+  //   allDay: true,
+  //   className: "bg-red",
+  //   description:
+  //     "Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus."
+  // },
+  // {
+  //   id: 2,
+  //   title: "Call with Dave2",
+  //   start: new Date(),
+  //   allDay: true,
+  //   className: "bg-red",
+  //   description:
+  //     "Nullam id dolor id nibh ultricies vehicula ut id elit."
+  // },
 ]
 class App extends React.Component{
 
@@ -75,8 +75,10 @@ class App extends React.Component{
         // });
 
         let eventToPass = this.state.events.filter(function(el){
-          return +el.id === +event.id
+          console.log(+el.id, +event.id)
+          return +el.id === +event.id - 1
         })
+        
         this.setState({
           modalChange: true,
           eventToPass: eventToPass[0]
@@ -111,14 +113,16 @@ class App extends React.Component{
       currentDate: calendar.view.title
     });
   };
-  addNewEvent = () => {
+  addNewEvent = (e) => {
+    e.preventDefault()
+
     var newEvents = this.state.events;
     newEvents.push({
       title: this.state.eventTitle,
       start: this.state.startDate,
       end: this.state.endDate,
       className: this.state.radios,
-      id: this.state.events[this.state.events.length - 1] + 1,
+      id: this.state.events.length + 1,
       allDay: false
     });
     calendar.addEvent({
@@ -126,7 +130,7 @@ class App extends React.Component{
       start: this.state.startDate,
       end: this.state.endDate,
       className: this.state.radios,
-      id: this.state.events[this.state.events.length - 1] + 1,
+      id: this.state.events.length + 1,
       allDay: false
     });
     this.setState({
@@ -186,8 +190,8 @@ class App extends React.Component{
   };
 
   onchangeHandler = (e) => {
+    alert(3)
     this.setState({[e.target.name]: e.target.value})
-    console.log(this.state)
   }
 
   render() {
@@ -252,7 +256,7 @@ class App extends React.Component{
 const ModalAdd = ({ toggle, change, save, coordinates }) => {
     return(
       <div className="modal-body" style={{top: coordinates.top + 'px', left: coordinates.left + 'px'}}>
-      <form className="block-form">
+      <form className="block-form" onSubmit={save}>
           <label className="form-control-label">Event title</label>
           <input
             placeholder="Event Title"
@@ -269,7 +273,7 @@ const ModalAdd = ({ toggle, change, save, coordinates }) => {
           <textarea rows="5" cols="20" name="eventDescription" onChange={change}></textarea>
           <div className="buttons-form">
             <button onClick={toggle} className="button-form buttons__cancel">close</button>
-            <button onClick={save} className="button-form buttons__cancel">Save</button>
+            <button className="button-form buttons__cancel">Save</button>
           </div>
       </form>
     </div>
@@ -278,7 +282,6 @@ const ModalAdd = ({ toggle, change, save, coordinates }) => {
 }
 
 const ModalChange = ({ toggle, change, save, coordinates, eventToPass }) => {
-  console.log(eventToPass.start.toISOString().slice(0, -5))
   return(
     <div className="modal-body" style={{top: coordinates.top + 'px', left: coordinates.left + 'px'}}>
     <form className="block-form">
@@ -295,7 +298,7 @@ const ModalChange = ({ toggle, change, save, coordinates, eventToPass }) => {
           type="datetime-local"
           name="startDate"
           //value="2020-02-25T01:00"
-          value={eventToPass.start.toISOString().slice(0, -5)}
+          value={eventToPass.start}
           onChange={change}
         />
         <textarea rows="5" cols="20" name="eventDescription" onChange={change} value={eventToPass.description}></textarea>
