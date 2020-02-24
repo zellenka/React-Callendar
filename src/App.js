@@ -61,6 +61,7 @@ class App extends React.Component{
       eventClick: ({ event }) => {
         this.setState({
           modalChange: true,
+          modalAdd: false,
           eventId: event.id,
           eventTitle: event.title,
           description: event.extendedProps.eventDescription,
@@ -71,6 +72,7 @@ class App extends React.Component{
       dateClick: (info) => {
         this.setState({
           modalAdd: true,
+          modalChange: false,
           element: info.dateStr,
           coordinates: {
             top: info.jsEvent.pageY - 117,
@@ -98,6 +100,8 @@ class App extends React.Component{
       start: this.state.startDate,
       id:this.state.events.length
     }
+
+    console.log(typeof newEvent)
 
     this.setState(()=>({
       events: this.state.events.concat(newEvent),
@@ -251,7 +255,7 @@ class App extends React.Component{
                   <button onClick={this.changeEvent} className="button-form ">Edit</button>  
                 </div>
             </form>
-            <button className="modal-close" onClick={() => this.setState({ modalAdd: false })}>X</button>
+            <button className="modal-close" onClick={() => this.setState({ modalChange: false })}>X</button>
           </div>
           : null
         }
