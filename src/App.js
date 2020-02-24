@@ -43,7 +43,6 @@ class App extends React.Component{
   componentDidMount() {
     this.createCalendar();
   }
-
   createCalendar = () => {
     calendar = new Calendar(this.refs.calendar, {
       plugins: [interactionPlugin, dayGridPlugin],
@@ -60,12 +59,11 @@ class App extends React.Component{
       events: this.state.events,
       // Edit calendar event action
       eventClick: ({ event }) => {
-
         this.setState({
           modalChange: true,
           eventId: event.id,
           eventTitle: event.title,
-          eventDescription: event.extendedProps.description,
+          description: event.extendedProps.eventDescription,
           event: event
         });
         
@@ -85,7 +83,6 @@ class App extends React.Component{
     calendar.render();
 
   };
-
   changeView = newView => {
     calendar.changeView(newView);
     this.setState({
@@ -128,12 +125,11 @@ class App extends React.Component{
         
         this.state.event.remove();
 
-
         calendar.addEvent({
           title: this.state.eventTitle,
           start: this.state.startDate,
           id: this.state.events.length,
-          eventDescription:this.state.eventDescription,
+          description :this.state.eventDescription,
           allDay: false,
         });
       } else {
@@ -145,7 +141,6 @@ class App extends React.Component{
       modalChange: false
     })
   };
-
   deleteEvent = (e) => {
     e.preventDefault()
     var newEvents = this.state.events.filter(
@@ -161,18 +156,15 @@ class App extends React.Component{
       event: undefined
     });
   };
-
   onchangeHandler = (e) => {
     this.setState({[e.target.name]: e.target.value})
   }
-
   closeHandler = () => {
     this.setState({
       modalAdd: false,
       modalChange: false
     })
   }
-
   render() {
     return (
       <div className='demo-app'>
@@ -224,13 +216,43 @@ class App extends React.Component{
         }
         {
           this.state.modalChange ?
-            <ModalChange 
-              toggle={() => this.setState({ modalChange: false })} 
-              change={this.onchangeHandler } 
-              save={this.changeEvent}
-              deleteEvent={this.deleteEvent}
-              close={this.closeHandler}
-            />
+            // <ModalChange 
+            //   toggle={() => this.setState({ modalChange: false })} 
+            //   change={this.onchangeHandler } 
+            //   save={this.changeEvent}
+            //   deleteEvent={this.deleteEvent}
+            // />
+            <div className="modal-body">
+            <form className="block-form">
+                <label className="form-control-label">Event title</label>
+                <input
+                  placeholder="Event Title"
+                  type="text"
+                  name="eventTitle"
+                  value={this.state.eventTitle}
+                  onChange={this.onchangeHandler}
+                />
+                <input
+                  placeholder="start"
+                  type="datetime-local"
+                  name="startDate"
+                  //value="2020-02-25T01:00"
+                  value={this.state.startDate}
+                  onChange={this.onchangeHandler}
+                />
+                <textarea rows="5" cols="20" 
+                name="description" 
+                onChange={this.onchangeHandler} 
+                value={this.state.description}
+                />
+                  
+                <div className="buttons-form">
+                  <button onClick={this.deleteEvent} className="button-form buttons__cancel">Discart</button>
+                  <button onClick={this.changeEvent} className="button-form ">Edit</button>  
+                </div>
+            </form>
+            <button className="modal-close" onClick={() => this.setState({ modalAdd: false })}>X</button>
+          </div>
           : null
         }
       </div>
@@ -258,8 +280,8 @@ const ModalAdd = ({ toggle, change, save, coored }) => {
           />
           <textarea rows="5" cols="20" name="eventDescription" onChange={change}></textarea>
           <div className="buttons-form">
-            <button onClick={toggle} className="button-form buttons__cancel">close</button>
-            <button className="button-form buttons__cancel">Save</button>
+            <button onClick={toggle} className="button-form buttons__cancel">Close</button>
+            <button className="button-form buttons__save">Save</button>
           </div>
       </form>
       <button class="modal-close" onClick={toggle}>X</button>
@@ -268,7 +290,7 @@ const ModalAdd = ({ toggle, change, save, coored }) => {
 
 }
 
-const ModalChange = ({ toggle, change, save, deleteEvent, close }) => {
+const ModalChange = ({ toggle, change, save, deleteEvent }) => {
   return(
     <div className="modal-body">
     <form className="block-form">
@@ -277,7 +299,7 @@ const ModalChange = ({ toggle, change, save, deleteEvent, close }) => {
           placeholder="Event Title"
           type="text"
           name="eventTitle"
-          //value={eventToPass.title}
+          //value={this.state.eventTitle}
           onChange={change}
         />
         <input
@@ -285,16 +307,21 @@ const ModalChange = ({ toggle, change, save, deleteEvent, close }) => {
           type="datetime-local"
           name="startDate"
           //value="2020-02-25T01:00"
-          //value={eventToPass.start}
+          //value={this.state.startDate}
           onChange={change}
         />
-        <textarea rows="5" cols="20" name="eventDescription" onChange={change}></textarea>
+        <textarea rows="5" cols="20" 
+        name="eventDescription" 
+        onChange={change} 
+        //value={this.state.eventDescription}
+        />
+          
         <div className="buttons-form">
           <button onClick={deleteEvent} className="button-form buttons__cancel">Discart</button>
-          <button onClick={save} className="button-form buttons__cancel">Edit</button>  
+          <button onClick={save} className="button-form ">Edit</button>  
         </div>
     </form>
-    <button className="form-close" onClick={close}>X</button>
+    <button className="modal-close" onClick={toggle}>X</button>
   </div>
   )
 

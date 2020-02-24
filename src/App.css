@@ -88,7 +88,7 @@ background: #fff;
                   justify-content: space-between;
 }
 
-.form-close {
+.modal-close {
   position: absolute;
   width: 20px;
   height: 20px;
@@ -101,4 +101,17 @@ background: #fff;
   border: 2px solid #D6D6D6;
   top: 10px;
   right: 10px;
+  padding: 0;
+}
+
+.button-form {
+  background: #fff;
+  border: none;
+  outline: none;
+  color: #6A6996;
+  font-size: 12px;
+}
+
+.buttons__cancel {
+  color: #FF5F5F;
 }
