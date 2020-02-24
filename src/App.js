@@ -12,11 +12,6 @@ import interactionPlugin from '@fullcalendar/interaction'
 
 let calendar;
 
-// var today = new Date();
-// var y = today.getFullYear();
-// var m = today.getMonth();
-// var d = today.getDate();
-
 const events = [
   // {
   //   id: 1,
@@ -65,36 +60,23 @@ class App extends React.Component{
       events: this.state.events,
       // Edit calendar event action
       eventClick: ({ event }) => {
-        // this.setState({
-        //   modalChange: true,
-        //   eventId: event.id,
-        //   eventTitle: event.title,
-        //   eventDescription: event.extendedProps.description,
-        //   radios: "bg-info",
-        //   event: event
-        // });
 
-        let eventToPass = this.state.events.filter(function(el){
-          console.log(+el.id, +event.id)
-          return +el.id === +event.id - 1
-        })
-        
         this.setState({
           modalChange: true,
-          eventToPass: eventToPass[0]
-          // coordinates: {
-          //   top: info.jsEvent.pageY,
-          //   left: info.jsEvent.pageX
-          // }
+          eventId: event.id,
+          eventTitle: event.title,
+          eventDescription: event.extendedProps.description,
+          event: event
         });
         
       },
       dateClick: (info) => {
         this.setState({
           modalAdd: true,
+          element: info.dateStr,
           coordinates: {
-            top: info.jsEvent.pageY,
-            left: info.jsEvent.pageX
+            top: info.jsEvent.pageY - 117,
+            left: info.dayEl.offsetLeft + 70
           }
         });
       }
@@ -102,9 +84,6 @@ class App extends React.Component{
 
     calendar.render();
 
-    this.setState({
-      currentDate: calendar.view.title
-    });
   };
 
   changeView = newView => {
@@ -116,64 +95,59 @@ class App extends React.Component{
   addNewEvent = (e) => {
     e.preventDefault()
 
-    var newEvents = this.state.events;
-    newEvents.push({
+    const newEvent = {
       title: this.state.eventTitle,
+      description: this.state.eventDescription,
       start: this.state.startDate,
-      end: this.state.endDate,
-      className: this.state.radios,
-      id: this.state.events.length + 1,
-      allDay: false
-    });
+      id:this.state.events.length
+    }
+
+    this.setState(()=>({
+      events: this.state.events.concat(newEvent),
+      modalAdd: false
+    }));
+
     calendar.addEvent({
-      title: this.state.eventTitle,
-      start: this.state.startDate,
-      end: this.state.endDate,
-      className: this.state.radios,
-      id: this.state.events.length + 1,
+      title: newEvent.title,
+      start: newEvent.start,
+      id: newEvent.id,
+      eventDescription: newEvent.description,
       allDay: false
     });
-    this.setState({
-      modalAdd: false,
-      events: newEvents,
-      startDate: undefined,
-      endDate: undefined,
-      radios: "bg-info",
-      eventTitle: undefined
-    });
+
+    //console.log(this.state, calendar)
   };
-  changeEvent = () => {
+  changeEvent = (e) => {
+
+    e.preventDefault()
+
     var newEvents = this.state.events.map((prop, key) => {
       if (prop.id + "" === this.state.eventId + "") {
+
+        calendar.getEventById(this.state.eventId).remove();
+        
         this.state.event.remove();
+
+
         calendar.addEvent({
-          ...prop,
           title: this.state.eventTitle,
-          className: this.state.radios,
-          description: this.state.eventDescription
+          start: this.state.startDate,
+          id: this.state.events.length,
+          eventDescription:this.state.eventDescription,
+          allDay: false,
         });
-        return {
-          ...prop,
-          title: this.state.eventTitle,
-          className: this.state.radios,
-          description: this.state.eventDescription
-        };
       } else {
         return prop;
       }
     });
+
     this.setState({
-      modalChange: false,
-      events: newEvents,
-      radios: "bg-info",
-      eventTitle: undefined,
-      eventDescription: undefined,
-      eventId: undefined,
-      event: undefined
-    });
+      modalChange: false
+    })
   };
 
-  deleteEvent = () => {
+  deleteEvent = (e) => {
+    e.preventDefault()
     var newEvents = this.state.events.filter(
       prop => prop.id + "" !== this.state.eventId
     );
@@ -181,7 +155,6 @@ class App extends React.Component{
     this.setState({
       modalChange: false,
       events: newEvents,
-      radios: "bg-info",
       eventTitle: undefined,
       eventDescription: undefined,
       eventId: undefined,
@@ -190,8 +163,14 @@ class App extends React.Component{
   };
 
   onchangeHandler = (e) => {
-    alert(3)
     this.setState({[e.target.name]: e.target.value})
+  }
+
+  closeHandler = () => {
+    this.setState({
+      modalAdd: false,
+      modalChange: false
+    })
   }
 
   render() {
@@ -232,18 +211,25 @@ class App extends React.Component{
                 </div>
        </div>
          <div className="calendar" ref="calendar" />
+
         {
           this.state.modalAdd ?
-            <ModalAdd toggle={() => this.setState({ modalAdd: false })} change={this.onchangeHandler } save={this.addNewEvent} coordinates={this.state.coordinates}/>
+            <ModalAdd
+            toggle={() => this.setState({ modalAdd: false })}
+            change={this.onchangeHandler }
+            save={this.addNewEvent}
+            coored={this.state.coordinates}
+            />
           : null
         }
-                {
+        {
           this.state.modalChange ?
             <ModalChange 
               toggle={() => this.setState({ modalChange: false })} 
-              change={this.onchangeHandler } save={this.changeEvent} 
-              coordinates={this.state.coordinates}
-              eventToPass={this.state.eventToPass}
+              change={this.onchangeHandler } 
+              save={this.changeEvent}
+              deleteEvent={this.deleteEvent}
+              close={this.closeHandler}
             />
           : null
         }
@@ -253,10 +239,10 @@ class App extends React.Component{
   
 }
 
-const ModalAdd = ({ toggle, change, save, coordinates }) => {
-    return(
-      <div className="modal-body" style={{top: coordinates.top + 'px', left: coordinates.left + 'px'}}>
-      <form className="block-form" onSubmit={save}>
+const ModalAdd = ({ toggle, change, save, coored }) => {
+    return ReactDOM.createPortal(
+      <div className="modal-body" style={{top: coored.top + 'px', left: coored.left + 'px'}}>
+        <form className="block-form" onSubmit={save}>
           <label className="form-control-label">Event title</label>
           <input
             placeholder="Event Title"
@@ -276,21 +262,22 @@ const ModalAdd = ({ toggle, change, save, coordinates }) => {
             <button className="button-form buttons__cancel">Save</button>
           </div>
       </form>
-    </div>
-    )
+      <button class="modal-close" onClick={toggle}>X</button>
+    </div>,
+     document.querySelector('.fc-view'))
 
 }
 
-const ModalChange = ({ toggle, change, save, coordinates, eventToPass }) => {
+const ModalChange = ({ toggle, change, save, deleteEvent, close }) => {
   return(
-    <div className="modal-body" style={{top: coordinates.top + 'px', left: coordinates.left + 'px'}}>
+    <div className="modal-body">
     <form className="block-form">
         <label className="form-control-label">Event title</label>
         <input
           placeholder="Event Title"
           type="text"
           name="eventTitle"
-          value={eventToPass.title}
+          //value={eventToPass.title}
           onChange={change}
         />
         <input
@@ -298,15 +285,16 @@ const ModalChange = ({ toggle, change, save, coordinates, eventToPass }) => {
           type="datetime-local"
           name="startDate"
           //value="2020-02-25T01:00"
-          value={eventToPass.start}
+          //value={eventToPass.start}
           onChange={change}
         />
-        <textarea rows="5" cols="20" name="eventDescription" onChange={change} value={eventToPass.description}></textarea>
+        <textarea rows="5" cols="20" name="eventDescription" onChange={change}></textarea>
         <div className="buttons-form">
-          <button className="button-form buttons__cancel">Discart</button>
+          <button onClick={deleteEvent} className="button-form buttons__cancel">Discart</button>
           <button onClick={save} className="button-form buttons__cancel">Edit</button>  
         </div>
     </form>
+    <button className="form-close" onClick={close}>X</button>
   </div>
   )
 

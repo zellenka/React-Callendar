@@ -2,7 +2,9 @@
   flex-wrap: wrap;
 }
 
-.fc-button-primary {
+.fc-day {
+  position: relative;
+  z-index: 4;
 }
 
 .fc-button-primary.fc-upperTitle-button {
@@ -51,6 +53,11 @@ border: 1px solid #43425D;
 border-radius: 10px;
 opacity: 1;
 padding: 22px 25px;
+top: 50%;
+left: 50%;
+background: #fff;
+-webkit-transform: translate(-50%,10%);
+        transform: translate(-50%,10%);
 }
 
 .calendar-block_top {
@@ -79,4 +86,19 @@ padding: 22px 25px;
           flex-direction: column;
           -webkit-box-pack: justify;
                   justify-content: space-between;
+}
+
+.form-close {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  color: #D6D6D6;
+  font-weight: bold;
+  text-align: center;
+  border: 2px solid #D6D6D6;
+  top: 10px;
+  right: 10px;
 }
