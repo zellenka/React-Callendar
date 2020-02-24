@@ -12,14 +12,23 @@ import interactionPlugin from '@fullcalendar/interaction'
 
 let calendar;
 
-var today = new Date();
-var y = today.getFullYear();
-var m = today.getMonth();
-var d = today.getDate();
+// var today = new Date();
+// var y = today.getFullYear();
+// var m = today.getMonth();
+// var d = today.getDate();
 
 const events = [
   {
     id: 1,
+    title: "Call with Dave",
+    start: new Date(),
+    allDay: true,
+    className: "bg-red",
+    description:
+      "Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus."
+  },
+  {
+    id: 2,
     title: "Call with Dave",
     start: new Date(),
     allDay: true,
@@ -45,31 +54,52 @@ class App extends React.Component{
       plugins: [interactionPlugin, dayGridPlugin],
       defaultView: "dayGridMonth",
       selectable: true,
-      selectHelper: true,
+      selectHelper: false,
       editable: true,
-      events: this.state.events,
-      //Add new event
-      select: info => {
-        this.setState({
-          modalAdd: true,
-          startDate: info.startStr,
-          endDate: info.endStr,
-          radios: "bg-info"
-        });
+      header: {
+        left: "today, prev, next",
+        center: "title",
+        right: "month, agendaWeek",
+        eventLimit: true
       },
+      events: this.state.events,
       // Edit calendar event action
       eventClick: ({ event }) => {
+        // this.setState({
+        //   modalChange: true,
+        //   eventId: event.id,
+        //   eventTitle: event.title,
+        //   eventDescription: event.extendedProps.description,
+        //   radios: "bg-info",
+        //   event: event
+        // });
+
+        let eventToPass = this.state.events.filter(function(el){
+          return +el.id === +event.id
+        })
         this.setState({
           modalChange: true,
-          eventId: event.id,
-          eventTitle: event.title,
-          eventDescription: event.extendedProps.description,
-          radios: "bg-info",
-          event: event
+          eventToPass: eventToPass[0]
+          // coordinates: {
+          //   top: info.jsEvent.pageY,
+          //   left: info.jsEvent.pageX
+          // }
+        });
+        
+      },
+      dateClick: (info) => {
+        this.setState({
+          modalAdd: true,
+          coordinates: {
+            top: info.jsEvent.pageY,
+            left: info.jsEvent.pageX
+          }
         });
       }
     });
+
     calendar.render();
+
     this.setState({
       currentDate: calendar.view.title
     });
@@ -138,15 +168,7 @@ class App extends React.Component{
       event: undefined
     });
   };
-  deleteEventSweetAlert = () => {
-    this.setState({
-      alert: false,
-      radios: "bg-info",
-      eventTitle: undefined,
-      eventDescription: undefined,
-      eventId: undefined
-    })
-  };
+
   deleteEvent = () => {
     var newEvents = this.state.events.filter(
       prop => prop.id + "" !== this.state.eventId
@@ -171,18 +193,54 @@ class App extends React.Component{
   render() {
     return (
       <div className='demo-app'>
-        <h6 className="">
-          {this.state.currentDate}
-        </h6>
+       <div className="calendar-block_top">
+         <div className="calendar-head">Calendar View</div>
+       <div className="buttons-wrapper">
+                  <button
+                    className="fc-button fc-button-primary"
+                    data-calendar-view="month"
+                    onClick={() => this.changeView("dayGridMonth")}
+                    
+                  >
+                    Month
+                  </button>
+                  <button
+                    className="fc-button fc-button-primary"
+                    data-calendar-view="basicWeek"
+                    onClick={() => this.changeView("dayGridWeek")}
+                  >
+                    Week
+                  </button>
+                  <button
+                    className="fc-button fc-button-primary"
+                    data-calendar-view="basicDay"
+                    onClick={() => this.changeView("dayGridDay")}
+                  >
+                    Day
+                  </button>
+                  <button
+                    className="fc-button fc-button-primary"
+                    data-calendar-view="basicDay"
+                    onClick={() => this.changeView("agendaDay")}
+                  >
+                    AgendaDay
+                  </button>
+                </div>
+       </div>
          <div className="calendar" ref="calendar" />
         {
           this.state.modalAdd ?
-            <Modal toggle={() => this.setState({ modalAdd: false })} change={this.onchangeHandler } save={this.addNewEvent}/>
+            <ModalAdd toggle={() => this.setState({ modalAdd: false })} change={this.onchangeHandler } save={this.addNewEvent} coordinates={this.state.coordinates}/>
           : null
         }
                 {
           this.state.modalChange ?
-            <Modal toggle={() => this.setState({ modalChange: false })} change={this.onchangeHandler } save={this.changeEvent}/>
+            <ModalChange 
+              toggle={() => this.setState({ modalChange: false })} 
+              change={this.onchangeHandler } save={this.changeEvent} 
+              coordinates={this.state.coordinates}
+              eventToPass={this.state.eventToPass}
+            />
           : null
         }
       </div>
@@ -191,10 +249,10 @@ class App extends React.Component{
   
 }
 
-const Modal = ({ toggle, change, save }) => {
+const ModalAdd = ({ toggle, change, save, coordinates }) => {
     return(
-      <div className="modal-body">
-      <form className="new-event--form">
+      <div className="modal-body" style={{top: coordinates.top + 'px', left: coordinates.left + 'px'}}>
+      <form className="block-form">
           <label className="form-control-label">Event title</label>
           <input
             placeholder="Event Title"
@@ -204,24 +262,51 @@ const Modal = ({ toggle, change, save }) => {
           />
           <input
             placeholder="start"
-            type="text"
+            type="datetime-local"
             name="startDate"
             onChange={change}
           />
-                    <input
-            placeholder="start"
-            type="text"
-            name="endDate"
-            onChange={change}
-          />
           <textarea rows="5" cols="20" name="eventDescription" onChange={change}></textarea>
-          <button onClick={toggle}>close</button>
-          <button onClick={save}>Update</button>
+          <div className="buttons-form">
+            <button onClick={toggle} className="button-form buttons__cancel">close</button>
+            <button onClick={save} className="button-form buttons__cancel">Save</button>
+          </div>
       </form>
     </div>
     )
 
 }
 
+const ModalChange = ({ toggle, change, save, coordinates, eventToPass }) => {
+  console.log(eventToPass.start.toISOString().slice(0, -5))
+  return(
+    <div className="modal-body" style={{top: coordinates.top + 'px', left: coordinates.left + 'px'}}>
+    <form className="block-form">
+        <label className="form-control-label">Event title</label>
+        <input
+          placeholder="Event Title"
+          type="text"
+          name="eventTitle"
+          value={eventToPass.title}
+          onChange={change}
+        />
+        <input
+          placeholder="start"
+          type="datetime-local"
+          name="startDate"
+          //value="2020-02-25T01:00"
+          value={eventToPass.start.toISOString().slice(0, -5)}
+          onChange={change}
+        />
+        <textarea rows="5" cols="20" name="eventDescription" onChange={change} value={eventToPass.description}></textarea>
+        <div className="buttons-form">
+          <button className="button-form buttons__cancel">Discart</button>
+          <button onClick={save} className="button-form buttons__cancel">Edit</button>  
+        </div>
+    </form>
+  </div>
+  )
+
+}
 
 export default App;
