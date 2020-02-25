@@ -75,8 +75,8 @@ class App extends React.Component{
           modalChange: false,
           element: info.dateStr,
           coordinates: {
-            top: info.jsEvent.pageY - 117,
-            left: info.dayEl.offsetLeft + 70
+            top: info.jsEvent.pageY - info.dayEl.offsetHeight/2,
+            left: info.dayEl.offsetLeft + info.dayEl.offsetWidth/2
           }
         });
       }
@@ -98,10 +98,8 @@ class App extends React.Component{
       title: this.state.eventTitle,
       description: this.state.eventDescription,
       start: this.state.startDate,
-      id:this.state.events.length
+      id:this.state.eventTitle.replace(/ /g, '')
     }
-
-    console.log(typeof newEvent)
 
     this.setState(()=>({
       events: this.state.events.concat(newEvent),
@@ -115,15 +113,14 @@ class App extends React.Component{
       eventDescription: newEvent.description,
       allDay: false
     });
-
-    //console.log(this.state, calendar)
   };
   changeEvent = (e) => {
 
     e.preventDefault()
 
     var newEvents = this.state.events.map((prop, key) => {
-      if (prop.id + "" === this.state.eventId + "") {
+
+      if (prop.id === this.state.eventId) {
 
         calendar.getEventById(this.state.eventId).remove();
         
@@ -132,23 +129,35 @@ class App extends React.Component{
         calendar.addEvent({
           title: this.state.eventTitle,
           start: this.state.startDate,
-          id: this.state.events.length,
-          description :this.state.eventDescription,
+          id: this.state.eventTitle.replace(/ /g, ''),
+          eventDescription :this.state.description,
           allDay: false,
         });
+        return {
+          title: this.state.eventTitle,
+          start: this.state.startDate,
+          id: this.state.eventTitle.replace(/ /g, ''),
+          description :this.state.description,
+          allDay: false,
+        }
       } else {
         return prop;
       }
     });
 
     this.setState({
-      modalChange: false
+      events: newEvents,
+      modalChange: false,
+      eventTitle: undefined,
+      eventDescription: undefined,
+      eventId: undefined,
+      event: undefined
     })
   };
   deleteEvent = (e) => {
     e.preventDefault()
     var newEvents = this.state.events.filter(
-      prop => prop.id + "" !== this.state.eventId
+      prop => prop.id !== this.state.eventId
     );
     this.state.event.remove();
     this.setState({
@@ -220,12 +229,6 @@ class App extends React.Component{
         }
         {
           this.state.modalChange ?
-            // <ModalChange 
-            //   toggle={() => this.setState({ modalChange: false })} 
-            //   change={this.onchangeHandler } 
-            //   save={this.changeEvent}
-            //   deleteEvent={this.deleteEvent}
-            // />
             <div className="modal-body">
             <form className="block-form">
                 <label className="form-control-label">Event title</label>
@@ -240,7 +243,6 @@ class App extends React.Component{
                   placeholder="start"
                   type="datetime-local"
                   name="startDate"
-                  //value="2020-02-25T01:00"
                   value={this.state.startDate}
                   onChange={this.onchangeHandler}
                 />
@@ -294,41 +296,5 @@ const ModalAdd = ({ toggle, change, save, coored }) => {
 
 }
 
-const ModalChange = ({ toggle, change, save, deleteEvent }) => {
-  return(
-    <div className="modal-body">
-    <form className="block-form">
-        <label className="form-control-label">Event title</label>
-        <input
-          placeholder="Event Title"
-          type="text"
-          name="eventTitle"
-          //value={this.state.eventTitle}
-          onChange={change}
-        />
-        <input
-          placeholder="start"
-          type="datetime-local"
-          name="startDate"
-          //value="2020-02-25T01:00"
-          //value={this.state.startDate}
-          onChange={change}
-        />
-        <textarea rows="5" cols="20" 
-        name="eventDescription" 
-        onChange={change} 
-        //value={this.state.eventDescription}
-        />
-          
-        <div className="buttons-form">
-          <button onClick={deleteEvent} className="button-form buttons__cancel">Discart</button>
-          <button onClick={save} className="button-form ">Edit</button>  
-        </div>
-    </form>
-    <button className="modal-close" onClick={toggle}>X</button>
-  </div>
-  )
-
-}
 
 export default App;

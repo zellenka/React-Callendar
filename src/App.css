@@ -115,3 +115,44 @@ background: #fff;
 .buttons__cancel {
   color: #FF5F5F;
 }
+
+.demo-app .fc-button {
+  background-color: #fff;
+  color: #4D4F5C;
+  border-radius: 0;
+  margin-right: -1px;
+  box-shadow: 0px 2px 3px #0000000D;
+border: 1px solid #D7DAE2;
+}
+
+.demo-app .fc-button:first-of-type {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.demo-app .fc-button:last-of-type {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.buttons-wrapper {
+  display: -webkit-box;
+}
+
+.calendar-head {
+  color: #4D4F5C;
+  font-size: 18px;
+}
+
+.fc-center h2 {
+  color: #4D4F5C;
+  font-size: 18px;
+}
+
+.demo-app .fc th {
+  height: 45px;
+  vertical-align: middle;
+  background-color: #F5F6FA;
+  border-right: none;
+  border-left: none;
+}
