@@ -5,10 +5,10 @@ import '@fullcalendar/core/main.css';
 import '@fullcalendar/daygrid/main.css';
 import '@fullcalendar/timegrid/main.css';
 import { Calendar } from "@fullcalendar/core";
-import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction' 
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import listPlugin from '@fullcalendar/list';
 
 let calendar;
 
@@ -45,16 +45,21 @@ class App extends React.Component{
   }
   createCalendar = () => {
     calendar = new Calendar(this.refs.calendar, {
-      plugins: [interactionPlugin, dayGridPlugin],
+      plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
       defaultView: "dayGridMonth",
       selectable: true,
       selectHelper: false,
       editable: true,
       header: {
-        left: "today, prev, next",
+        left: "today,prev,next",
         center: "title",
         right: "month, agendaWeek",
         eventLimit: true
+      },
+      buttonText:{
+        today: 'Today',
+        prev: 'Back',
+        next: 'Next',
       },
       events: this.state.events,
       // Edit calendar event action
@@ -209,7 +214,7 @@ class App extends React.Component{
                   <button
                     className="fc-button fc-button-primary"
                     data-calendar-view="basicDay"
-                    onClick={() => this.changeView("agendaDay")}
+                    onClick={() => this.changeView("list")}
                   >
                     AgendaDay
                   </button>
